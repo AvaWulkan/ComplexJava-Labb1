@@ -1,6 +1,7 @@
 package se.iths.service;
 
 import se.iths.entity.Student;
+import se.iths.entity.Subject;
 import se.iths.util.NonNumericalEntryException;
 
 import javax.persistence.EntityManager;
@@ -20,18 +21,21 @@ public class StudentService {
     public void addStudent(Student student){
         if(student.getFirstName().isEmpty() || student.getLastName().isEmpty() || student.getEmail().isEmpty()){
             throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("All field except phone number is mandatory.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"firstName\": \"REQUIRED\",\n" +
+                            "\t\"lastName\": \"REQUIRED\",\n" +
+                            "\t\"email\": \"REQUIRED\",\n" +
+                            "\t\"phoneNumber\": \"OPTIONAL\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         if(!checkIfPhoneNumberIsNumeric(student.getPhoneNumber())){
             throw new NonNumericalEntryException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("Phone number can only contain numbers and whitespace.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"phoneNumber\": \"ONLY NUMBERS\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         if(checkIfEmailIsDuplicate(student.getEmail(), student.getId())){
             throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("Email " + student.getEmail() + " already exists.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"phoneNumber\": \"ALREADY EXIST\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         entityManager.persist(student);
     }
@@ -39,13 +43,21 @@ public class StudentService {
     public void updateStudent(Student student){
         if(student.getFirstName().isEmpty() || student.getLastName().isEmpty() || student.getEmail().isEmpty()){
             throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("All field except phonenumber is mandatory.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"firstName\": \"REQUIRED\",\n" +
+                            "\t\"lastName\": \"REQUIRED\",\n" +
+                            "\t\"email\": \"REQUIRED\",\n" +
+                            "\t\"phoneNumber\": \"OPTIONAL\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
+        }
+        if(!checkIfPhoneNumberIsNumeric(student.getPhoneNumber())){
+            throw new NonNumericalEntryException(Response.status(Response.Status.NOT_ACCEPTABLE)
+                    .entity("{\"phoneNumber\": \"ONLY NUMBERS\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         if(checkIfEmailIsDuplicate(student.getEmail(), student.getId())){
-            throw  new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("Email " + student.getEmail() + " already exists.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
+                    .entity("{\"phoneNumber\": \"ALREADY EXIST\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         entityManager.merge(student);
     }
@@ -65,6 +77,9 @@ public class StudentService {
 
     public void deleteStudent(Long id){
         Student foundStudent = entityManager.find(Student.class, id);
+        for (Subject subject : foundStudent.getSubjects()) {
+            subject.removeStudent(foundStudent);
+        }
         entityManager.remove(foundStudent);
     }
 

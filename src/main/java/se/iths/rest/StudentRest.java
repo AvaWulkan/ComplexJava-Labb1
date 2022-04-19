@@ -37,8 +37,8 @@ public class StudentRest {
         Student foundStudent = studentService.findStudentById(id);
         if (foundStudent == null){
             throw  new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity("No student with ID " + id + " was found in the database.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"Student with ID " + id + "\": \"NOT FOUND\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         return Response.ok(foundStudent).build();
     }
@@ -49,8 +49,8 @@ public class StudentRest {
         List<Student>  foundStudents = studentService.findStudentByLastName(lastName);
         if (foundStudents.isEmpty()){
             throw  new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity("No students with lastname " + lastName + " was found in the database.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"Students with lastname " + lastName + "\": \"NOT FOUND\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         return Response.ok(foundStudents).build();
     }
@@ -61,8 +61,8 @@ public class StudentRest {
         List<Student> foundStudents = studentService.getAllStudents();
         if (foundStudents.isEmpty()){
             throw  new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity("There is no students in the database.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"Students\": \"EMPTY\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         return Response.ok(foundStudents).build();
     }
@@ -73,11 +73,11 @@ public class StudentRest {
         Student foundStudent = studentService.findStudentById(id);
         if (foundStudent == null){
             throw  new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity("No student with ID " + id + " was found in the database.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"Student with ID " + id + "\": \"NOT FOUND\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         studentService.deleteStudent(id);
-        return Response.ok("Student with id " + id + " successfully deleted.").type(MediaType.TEXT_PLAIN_TYPE).build();
+        return Response.ok("{\"Student with ID " + id + "\": \"DELETED\"}").type(MediaType.APPLICATION_JSON).build();
     }
 
     @Path("{id}")
@@ -85,8 +85,8 @@ public class StudentRest {
     public Response updatePhoneNumber(@PathParam("id") Long id, Student student){
         if (studentService.findStudentById(id) == null){
             throw  new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
-                    .entity("No student with ID " + id + " was found in the database.")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+                    .entity("{\"Student with ID " + id + "\": \"NOT FOUND\"}")
+                    .type(MediaType.APPLICATION_JSON).build());
         }
         Student updatedStudent = studentService.updatePhoneNumber(id, student.getPhoneNumber());
         return Response.ok(updatedStudent).build();
